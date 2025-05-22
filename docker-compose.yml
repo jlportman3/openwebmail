@@ -14,3 +14,7 @@ services:
       - SMTP_PORT=${SMTP_PORT}
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          memory: 4g
