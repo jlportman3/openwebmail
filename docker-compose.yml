@@ -1,0 +1,14 @@
+version: "3"
+services:
+  openwebmail:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      - IMAP_HOST=${IMAP_HOST}
+      - IMAP_PORT=${IMAP_PORT}
+      - IMAP_SSL=${IMAP_SSL}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}

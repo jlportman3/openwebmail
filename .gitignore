@@ -21,3 +21,6 @@ cgi-bin/openwebmail/etc/*.log
 
 data/openwebmail/tmp/
 data/openwebmail/uploads/
+
+# Local environment files
+.env

@@ -75,6 +75,19 @@ docker run -p 8080:80 openwebmail
 The application will then be available at
 `http://localhost:8080/openwebmail`.
 
+### Docker Compose
+
+An example environment file is provided to make configuration easier. Copy
+`.env.example` to `.env` and adjust the values for your IMAP and SMTP server.
+
+Build and start the service with:
+
+```sh
+docker-compose up --build
+```
+
+The web interface will be available at `http://localhost:8080/openwebmail`.
+
 ## Links
 
 <http://openwebmail.acatysmoof.com/>
