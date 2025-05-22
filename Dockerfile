@@ -34,7 +34,9 @@ RUN echo 'ScriptAlias /cgi-bin/ /usr/local/www/cgi-bin/' > /etc/apache2/conf-ava
     echo '</Directory>' >> /etc/apache2/conf-available/openwebmail.conf && \
     a2enconf openwebmail
 
-RUN /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl --init --no
+RUN /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl --init --no \
+    && find /usr/local/www/cgi-bin/openwebmail -maxdepth 1 -type f -name 'openwebmail*.pl' \
+        -exec chown root:root {} \; -exec chmod 4755 {} \;
 
 EXPOSE 80
 CMD ["apachectl", "-D", "FOREGROUND"]
