@@ -57,6 +57,19 @@ tests with:
 prove -l
 ```
 
+## IMAP Support
+
+An authentication module for remote IMAP servers is provided as
+`auth_imap.pl`.  Enable it by setting `auth_module` in
+`cgi-bin/openwebmail/etc/openwebmail.conf` and define the server
+parameters `authimap_server`, `authimap_port` and `authimap_usessl`.
+The helper script `misc/test/authtest.pl` can be used to verify a user
+against the configured IMAP server:
+
+```sh
+perl misc/test/authtest.pl auth_imap.pl username password
+```
+
 ## Docker Setup
 
 A `Dockerfile` is provided for running OpenWebMail on a modern Ubuntu
