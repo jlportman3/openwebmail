@@ -80,6 +80,7 @@ auth_pam_cobalt.pl	pam on cobalt	(pluggable authentication module)
 auth_pg.pl		postgres server (pgsql interface)
 auth_pgsql.pl		postgres server (DBI interface)
 auth_pop3.pl		remote pop3 server
+auth_imap.pl            remote imap server
 auth_unix.pl		unix passwd
 auth_unix_cobalt.pl	unix passwd	(optimized for Sun Cobalt servers)
 auth_vdomain.pl		passwd of vdomain on vmpop3d+postfix
@@ -1256,6 +1257,24 @@ authpop3_usessl
 -----------------------------------------------------------------------
 When auth_pop3.pl is used as authentication module, this option makes
 openwebmail use SSL to connect to auth pop3 server
+
+authimap_server
+-----------------------------------------------------------------------
+When auth_imap.pl is used as authentication module, this option specify
+the imap server for authentication
+Default: localhost
+
+authimap_port
+-----------------------------------------------------------------------
+When auth_imap.pl is used as authentication module, this option specify
+the port of the imap server for authentication
+Default: 143
+
+authimap_usessl
+-----------------------------------------------------------------------
+When auth_imap.pl is used as authentication module, this option makes
+openwebmail use SSL to connect to auth imap server
+
 
 
 loginerrordelay
