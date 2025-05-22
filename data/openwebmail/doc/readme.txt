@@ -76,7 +76,8 @@ Mail-SpamAssassin-3.02.tar.gz (optional, for spamcheck,
 antiword-0.35.tar.gz          (optional, for msword preview)
 ImageMagick-5.5.3.tar.gz      (optional, for thumbnail support in webdisk)
 tnef-1.2.3.1.tar.gz           (optional, tnef is used mostly by mails from MS Outlook and Exchange)
-wget-1.9.1.tar.gz             (optional, for URL uploading support in webdisk & msg composing)
+libwww-perl-6.xx.tar.gz       (required, for URL attachment support in msg composing)
+wget-1.9.1.tar.gz             (optional, for URL uploading support in webdisk)
 lsof_4.73A.freebsd.tar.bz2    (optional, for openwebmail-tool --unlock)
 
 
