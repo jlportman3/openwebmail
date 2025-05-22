@@ -39,26 +39,8 @@ use warnings FATAL => 'all';
 
 use vars qw($SCRIPT_DIR);
 
-if (-f '/etc/openwebmail_path.conf') {
-   my $pathconf = '/etc/openwebmail_path.conf';
-   open(F, $pathconf) or die "Cannot open $pathconf: $!";
-   my $pathinfo = <F>;
-   close(F) or die "Cannot close $pathconf: $!";
-   ($SCRIPT_DIR) = $pathinfo =~ m#^(\S*)#;
-} else {
-   ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
-}
-
-die 'SCRIPT_DIR cannot be set' if $SCRIPT_DIR eq '';
-push (@INC, $SCRIPT_DIR);
-push (@INC, "$SCRIPT_DIR/lib");
-
-# secure the environment
-delete $ENV{$_} for qw(ENV BASH_ENV CDPATH IFS TERM);
-$ENV{PATH} = '/bin:/usr/bin';
-
-# make sure the openwebmail group can write
-umask(0002);
+require "modules/init.pl";
+ow::init::init();
 
 # load non-OWM libraries
 use Fcntl qw(:DEFAULT :flock);
@@ -66,14 +48,7 @@ use CGI 3.31 qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
 
 # load OWM libraries
-require "modules/dbm.pl";
-require "modules/suid.pl";
-require "modules/filelock.pl";
-require "modules/tool.pl";
-require "modules/datetime.pl";
-require "modules/lang.pl";
-require "modules/mailparse.pl";
-require "modules/htmltext.pl";
+
 require "auth/auth.pl";
 require "quota/quota.pl";
 require "shares/ow-shared.pl";
