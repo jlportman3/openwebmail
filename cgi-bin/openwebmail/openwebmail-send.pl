@@ -74,7 +74,7 @@ require "modules/htmltext.pl";
 require "modules/htmlrender.pl";
 require "modules/enriched.pl";
 require "modules/tnef.pl";
-require "modules/wget.pl";
+use LWP::UserAgent;
 require "auth/auth.pl";
 require "quota/quota.pl";
 require "shares/ow-shared.pl";
@@ -286,7 +286,7 @@ sub compose {
       if (defined $prefs{autocc} && $prefs{autocc} ne '') {
          $cc .= ', ' if $cc ne '';
          $cc .= (iconv($prefs{charset}, $composecharset, $prefs{autocc}))[0];
-      }
+   }
 
       $replyto = (iconv($prefs{charset}, $composecharset, $prefs{replyto}))[0] if defined $prefs{replyto};
 
@@ -294,7 +294,7 @@ sub compose {
          $body .= $msgformat eq 'text'
                   ? "\n\n"     . str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . "\n"
                   : "<br><br>" . str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . "<br>";
-      }
+   }
 
       # remove tail blank line and space
       $body =~ s#\s+$#\n#s;
@@ -308,7 +308,7 @@ sub compose {
          $body =~ s#([^\n\r]{1,80})( |&nbsp;)#$1$2\n#ig;
 
          $body .= "\n";
-      }
+   }
    } elsif ($composetype eq 'continue') {
       # *******************************************************************
       # user is adding an attachment or changing a parameter during compose
@@ -324,7 +324,7 @@ sub compose {
          $body = ow::htmltext::text2html($body);
       } elsif ($msgformat ne 'text' && $newmsgformat eq 'text') {
          $body = ow::htmltext::html2text($body);
-      }
+   }
 
       $msgformat = $newmsgformat;
 
@@ -338,7 +338,7 @@ sub compose {
          # insert \n for long lines to keep them short so that the width of
          # an html message composer can always fit within screen resolution
          $body =~ s#([^\n\r]{1,80})( |&nbsp;)#$1$2\n#ig;
-      }
+   }
    } elsif ($composetype eq 'reply') {
       # *******************************************
       # user is replying to the sender of a message
@@ -363,7 +363,7 @@ sub compose {
          # only keep attachments that are being referenced in the body via cid or loc
          unlink(ow::tool::untaint("$config{ow_sessionsdir}/$_->{file}")) for grep { !exists $_->{referencecount} || $_->{referencecount} < 1 } @{$r_attfiles};
          @{$r_attfiles} = grep { exists $_->{referencecount} && $_->{referencecount} } @{$r_attfiles};
-      }
+   }
 
       if ($msgformat eq 'auto') {
          $msgformat = $bodyformat;
@@ -371,13 +371,13 @@ sub compose {
 
          $showhtmlastext = $prefs{showhtmlastext} if $showhtmlastext eq '';
          $msgformat = 'text' if $showhtmlastext;
-      }
+   }
 
       if ($bodyformat eq 'text' && $msgformat ne 'text')  {
          $body = ow::htmltext::text2html($body);
       } elsif ($bodyformat ne 'text' && $msgformat eq 'text')  {
          $body = ow::htmltext::html2text($body);
-      }
+   }
 
       # auto set the from to match the userfrom the message was sent to
       my $fromemail = (grep { $message->{to} =~ m/$_/i || $message->{cc} =~ m/$_/i } keys %{$userfroms})[0] || $prefs{email};
@@ -386,7 +386,7 @@ sub compose {
          $from = qq|"$userfroms->{$fromemail}" <$fromemail>|;
       } else {
          $from = $fromemail;
-      }
+   }
 
       my $replyprefix = gettext('Re:');
       $subject = $message->{subject} || gettext('(no subject)');
@@ -396,7 +396,7 @@ sub compose {
          $to = $message->{'reply-to'} || '';
       } else {
          $to = $message->{from} || '';
-      }
+   }
 
       ($subject, $to, $cc) = iconv('utf-8',$composecharset,$subject,$to,$cc);
 
@@ -430,7 +430,7 @@ sub compose {
          $body =~ s#(?:<br ?/?>\s*)*$##gi;
          $body =~ s#(<br ?/?>|<div>|<div [^\<\>]*?>)#$1&gt; #gis;
          $body = "&gt; $body";
-      }
+   }
 
       if ($prefs{replywithorigmsg} eq 'at_beginning') {
          my $replyheader = gettext('On <tmpl_var messagedate escape="none">, <tmpl_var fromnameaddr escape="none"> wrote');
@@ -472,12 +472,12 @@ sub compose {
                     "<br>$body<br>" .
                     "<b>" . gettext('------- End of Original Message -------') . "</b><br>\n";
          }
-      }
+   }
 
       if (defined $prefs{autocc} && $prefs{autocc} ne '') {
          $cc .= ', ' if $cc ne '';
          $cc .= (iconv($prefs{charset}, $composecharset, $prefs{autocc}))[0];
-      }
+   }
 
       $replyto = (iconv($prefs{charset}, $composecharset, $prefs{replyto}))[0] if defined $prefs{replyto};
       $inreplyto = $message->{'message-id'};
@@ -490,7 +490,7 @@ sub compose {
          $references = "$string $message->{'message-id'}";
       } else {
          $references = $message->{'message-id'};
-      }
+   }
 
       my $origbody = $body;
 
@@ -503,7 +503,7 @@ sub compose {
             $stationerycontent = (iconv($stationery{$stationeryname}{charset}, $composecharset, $stationery{$stationeryname}{content}))[0]
               if ($ret == 0);
          }
-      }
+   }
 
       my $endofline = $msgformat eq 'text' ? "\n" : "<br>";
 
@@ -511,7 +511,7 @@ sub compose {
          $body = str2str($stationerycontent, $msgformat) . $endofline;
       } else {
          $body = $endofline . $endofline;
-      }
+   }
 
       $body .= str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . $endofline
         if $prefs{signature} =~ m#[^\s]#;
@@ -520,7 +520,7 @@ sub compose {
          $body = $origbody . $endofline . $body;
       } elsif ($prefs{replywithorigmsg} eq 'at_end') {
          $body = $body . $endofline . $origbody;
-      }
+   }
 
       # remove tail blank line and space
       $body =~ s#\s+$#\n#s;
@@ -534,7 +534,7 @@ sub compose {
          $body =~ s#([^\n\r]{1,80})( |&nbsp;)#$1$2\n#ig;
 
          $body .= "\n";
-      }
+   }
    } elsif ($composetype eq 'replyall') {
       # **********************************************************
       # user is replying to the sender and recipients of a message
@@ -559,7 +559,7 @@ sub compose {
          # only keep attachments that are being referenced in the body via cid or loc
          unlink(ow::tool::untaint("$config{ow_sessionsdir}/$_->{file}")) for grep { !exists $_->{referencecount} || $_->{referencecount} < 1 } @{$r_attfiles};
          @{$r_attfiles} = grep { exists $_->{referencecount} && $_->{referencecount} } @{$r_attfiles};
-      }
+   }
 
       if ($msgformat eq 'auto') {
          $msgformat = $bodyformat;
@@ -567,13 +567,13 @@ sub compose {
 
          $showhtmlastext = $prefs{showhtmlastext} if $showhtmlastext eq '';
          $msgformat = 'text' if $showhtmlastext;
-      }
+   }
 
       if ($bodyformat eq 'text' && $msgformat ne 'text')  {
          $body = ow::htmltext::text2html($body);
       } elsif ($bodyformat ne 'text' && $msgformat eq 'text')  {
          $body = ow::htmltext::html2text($body);
-      }
+   }
 
       # auto set the from to match the userfrom the message was sent to
       my $fromemail = (grep { $message->{to} =~ m/$_/i || $message->{cc} =~ m/$_/i } keys %{$userfroms})[0] || $prefs{email};
@@ -582,7 +582,7 @@ sub compose {
          $from = qq|"$userfroms->{$fromemail}" <$fromemail>|;
       } else {
          $from = $fromemail;
-      }
+   }
 
       my $replyprefix = gettext('Re:');
       $subject = $message->{subject} || gettext('(no subject)');
@@ -592,7 +592,7 @@ sub compose {
          $to = $message->{'reply-to'} || '';
       } else {
          $to = $message->{from} || '';
-      }
+   }
 
       # add everyone else who this message was sent to
       my @recv   = ();
@@ -601,7 +601,7 @@ sub compose {
          my $addr = (ow::tool::email2nameaddr($email))[1];
          next if ($addr eq $fromemail || $addr eq $toaddr || $addr =~ m/^\s*$/ || $addr =~ m/undisclosed\-recipients:\s?;?/i);
          push(@recv, $email);
-      }
+   }
       $to .= ', ' . join(', ', @recv) if scalar @recv > 0;
 
       # add everyone else who was cc'd
@@ -610,7 +610,7 @@ sub compose {
          my $addr = (ow::tool::email2nameaddr($email))[1];
          next if ($addr eq $fromemail || $addr eq $toaddr || $addr =~ m/^\s*$/ || $addr =~ m/undisclosed\-recipients:\s?;?/i);
          push(@recv, $email);
-      }
+   }
       $cc = join(', ', @recv) if scalar @recv > 0;
 
       ($subject, $to, $cc) = iconv('utf-8',$composecharset,$subject,$to,$cc);
@@ -645,7 +645,7 @@ sub compose {
          $body =~ s#(?:<br ?/?>\s*)*$##gi;
          $body =~ s#(<br ?/?>|<div>|<div [^\<\>]*?>)#$1&gt; #gis;
          $body = "&gt; $body";
-      }
+   }
 
       if ($prefs{replywithorigmsg} eq 'at_beginning') {
          my $replyheader = gettext('On <tmpl_var messagedate escape="none">, <tmpl_var fromnameaddr escape="none"> wrote');
@@ -687,12 +687,12 @@ sub compose {
                     "<br>$body<br>" .
                     "<b>" . gettext('------- End of Original Message -------') . "</b><br>\n";
          }
-      }
+   }
 
       if (defined $prefs{autocc} && $prefs{autocc} ne '') {
          $cc .= ', ' if $cc ne '';
          $cc .= (iconv($prefs{charset}, $composecharset, $prefs{autocc}))[0];
-      }
+   }
 
       $replyto = (iconv($prefs{charset}, $composecharset, $prefs{replyto}))[0] if defined $prefs{replyto};
       $inreplyto = $message->{'message-id'};
@@ -705,7 +705,7 @@ sub compose {
          $references = "$string $message->{'message-id'}";
       } else {
          $references = $message->{'message-id'};
-      }
+   }
 
       my $origbody = $body;
 
@@ -718,7 +718,7 @@ sub compose {
             $stationerycontent = (iconv($stationery{$stationeryname}{charset}, $composecharset, $stationery{$stationeryname}{content}))[0]
               if ($ret == 0);
          }
-      }
+   }
 
       my $endofline = $msgformat eq 'text' ? "\n" : "<br>";
 
@@ -726,7 +726,7 @@ sub compose {
          $body = str2str($stationerycontent, $msgformat) . $endofline;
       } else {
          $body = $endofline . $endofline;
-      }
+   }
 
       $body .= str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . $endofline
         if $prefs{signature} =~ m#[^\s]#;
@@ -735,7 +735,7 @@ sub compose {
          $body = $origbody . $endofline . $body;
       } elsif ($prefs{replywithorigmsg} eq 'at_end') {
          $body = $body . $endofline . $origbody;
-      }
+   }
 
       # remove tail blank line and space
       $body =~ s#\s+$#\n#s;
@@ -749,7 +749,7 @@ sub compose {
          $body =~ s#([^\n\r]{1,80})( |&nbsp;)#$1$2\n#ig;
 
          $body .= "\n";
-      }
+   }
    } elsif ($composetype eq 'forward') {
       # ******************************************************
       # user is forwarding the message as inline reply content
@@ -770,7 +770,7 @@ sub compose {
          $body = ow::htmlrender::html4disableemblink($body, $prefs{disableemblink}, "$config{ow_htmlurl}/images/backgrounds/Transparent.gif");
          $body = ow::htmlrender::html4attfiles($body, $r_attfiles, "$config{ow_cgiurl}/openwebmail-viewatt.pl", "action=viewattfile&sessionid=$thissession");
          $body = ow::htmlrender::html2block($body);
-      }
+   }
 
       if ($msgformat eq 'auto') {
          $msgformat = $bodyformat;
@@ -778,13 +778,13 @@ sub compose {
 
          $showhtmlastext = $prefs{showhtmlastext} if $showhtmlastext eq '';
          $msgformat = 'text' if $showhtmlastext;
-      }
+   }
 
       if ($bodyformat eq 'text' && $msgformat ne 'text')  {
          $body = ow::htmltext::text2html($body);
       } elsif ($bodyformat ne 'text' && $msgformat eq 'text')  {
          $body = ow::htmltext::html2text($body);
-      }
+   }
 
       # auto set the from to match the userfrom the message was sent to
       my $fromemail = (grep { $message->{to} =~ m/$_/i || $message->{cc} =~ m/$_/i } keys %{$userfroms})[0] || $prefs{email};
@@ -793,7 +793,7 @@ sub compose {
          $from = qq|"$userfroms->{$fromemail}" <$fromemail>|;
       } else {
          $from = $fromemail;
-      }
+   }
 
       my $forwardprefix = gettext('Fw:');
       $subject = $message->{subject} || gettext('(no subject)');
@@ -827,7 +827,7 @@ sub compose {
                  ow::htmltext::text2html($forwardheading) .
                  qq|<br>$body<br>| .
                  '<b>' . gettext('------- End of Forwarded Message -------') . "</b><br>\n";
-      }
+   }
 
       my $endofline = $msgformat eq 'text' ? "\n" : "<br>";
       $body .= $endofline . $endofline;
@@ -838,7 +838,7 @@ sub compose {
          } else {
             $body = $body . $signature . $endofline;
          }
-      }
+   }
 
       $cc = (iconv($prefs{charset}, $composecharset, $prefs{autocc}))[0] if defined $prefs{autocc};
       $replyto = (iconv($prefs{charset}, $composecharset, $prefs{replyto}))[0] if defined $prefs{replyto};
@@ -851,7 +851,7 @@ sub compose {
          $references = $message->{'in-reply-to'};
          $references =~ s/^.*?(\<\S+\>).*$/$1/;
          $references = "$references $message->{'message-id'}";
-      }
+   }
 
       # remove tail blank line and space
       $body =~ s#\s+$#\n#s;
@@ -865,7 +865,7 @@ sub compose {
          $body =~ s#([^\n\r]{1,80})( |&nbsp;)#$1$2\n#ig;
 
          $body .= "\n";
-      }
+   }
    } elsif ($composetype eq 'forwardasorig') {
       # ****************************************************************
       # user is forwarding the message as if they originally composed it
@@ -884,7 +884,7 @@ sub compose {
          $body = ow::htmlrender::html4nobase($body);
          $body = ow::htmlrender::html4attfiles($body, $r_attfiles, "$config{ow_cgiurl}/openwebmail-viewatt.pl", "action=viewattfile&sessionid=$thissession");
          $body = ow::htmlrender::html2block($body);
-      }
+   }
 
       if ($msgformat eq 'auto') {
          $msgformat = $bodyformat;
@@ -892,13 +892,13 @@ sub compose {
 
          $showhtmlastext = $prefs{showhtmlastext} if $showhtmlastext eq '';
          $msgformat = 'text' if $showhtmlastext;
-      }
+   }
 
       if ($bodyformat eq 'text' && $msgformat ne 'text')  {
          $body = ow::htmltext::text2html($body);
       } elsif ($bodyformat ne 'text' && $msgformat eq 'text')  {
          $body = ow::htmltext::html2text($body);
-      }
+   }
 
       # auto set the from to match the userfrom the message was sent to
       my $fromemail = (grep { $message->{to} =~ m/$_/i || $message->{cc} =~ m/$_/i } keys %{$userfroms})[0] || $prefs{email};
@@ -907,7 +907,7 @@ sub compose {
          $from = qq|"$userfroms->{$fromemail}" <$fromemail>|;
       } else {
          $from = $fromemail;
-      }
+   }
 
       $subject    = (iconv('utf-8', $composecharset, ($message->{subject} || '')))[0];
       $replyto    = (iconv('utf-8', $composecharset, $message->{from}))[0];
@@ -923,7 +923,7 @@ sub compose {
          $body =~ s/\s+$//;
       } else {
          $body =~ s/<br>(\s*<br>)+/<br><br>/gis;
-      }
+   }
 
       # remove tail blank line and space
       $body =~ s#\s+$#\n#s;
@@ -937,7 +937,7 @@ sub compose {
          $body =~ s#([^\n\r]{1,80})( |&nbsp;)#$1$2\n#ig;
 
          $body .= "\n";
-      }
+   }
    } elsif ($composetype eq 'forwardasatt') {
       # *****************************************************************************
       # user is forwarding a message or messages as encapsulated rfc822 attachment(s)
@@ -952,7 +952,7 @@ sub compose {
       if (update_folderindex($folderfile, $folderdb) < 0) {
          ow::filelock::lock($folderfile, LOCK_UN) or writelog("cannot unlock file $folderfile");
          openwebmailerror(gettext('Cannot update db:') . ' ' . f2u($folderdb));
-      }
+   }
 
       # build the list of message ids that are being forwarded
       my @forwarded_messageids = ();
@@ -971,7 +971,7 @@ sub compose {
 
          close(FORWARDIDS)
             or openwebmailerror(gettext('Cannot close file:') . " $config{ow_sessionsdir}/$thissession-forwardids-$forward_batchid ($!)");
-      }
+   }
 
       my $forward_subject = gettext('(no subject)');
 
@@ -1032,7 +1032,7 @@ sub compose {
             openwebmailerror(gettext('Cannot close file:') . " $attachment_tempfile ($!)");
 
          ow::filelock::lock($folderfile, LOCK_UN);
-      }
+   }
 
       ($attfiles_totalsize, $r_attfiles) = get_attachments($attachments_uid);
 
@@ -1060,7 +1060,7 @@ sub compose {
          $body =~ s#([^\n\r]{1,80})( |&nbsp;)#$1$2\n#ig;
 
          $body .= "\n";
-      }
+   }
    } elsif ($composetype eq 'editdraft') {
       # ************************************************
       # user is editing a previously saved draft message
@@ -1078,7 +1078,7 @@ sub compose {
          $body = ow::htmlrender::html4nobase($body);
          $body = ow::htmlrender::html4attfiles($body, $r_attfiles, "$config{ow_cgiurl}/openwebmail-viewatt.pl", "action=viewattfile&sessionid=$thissession");
          $body = ow::htmlrender::html2block($body);
-      }
+   }
 
       if ($msgformat eq 'auto') {
          $msgformat = $bodyformat;
@@ -1086,13 +1086,13 @@ sub compose {
 
          $showhtmlastext = $prefs{showhtmlastext} if $showhtmlastext eq '';
          $msgformat = 'text' if $showhtmlastext;
-      }
+   }
 
       if ($bodyformat eq 'text' && $msgformat ne 'text')  {
          $body = ow::htmltext::text2html($body);
       } elsif ($bodyformat ne 'text' && $msgformat eq 'text')  {
          $body = ow::htmltext::html2text($body);
-      }
+   }
 
       # auto set the from to match the userfrom the message was sent to
       my $fromemail = (grep { $message->{from} =~ m/$_/i } keys %{$userfroms})[0] || $prefs{email};
@@ -1101,7 +1101,7 @@ sub compose {
          $from = qq|"$userfroms->{$fromemail}" <$fromemail>|;
       } else {
          $from = $fromemail;
-      }
+   }
 
       $subject = $message->{subject} || gettext('(no subject)');
       $to      = $message->{to} if defined $message->{to};
@@ -1128,7 +1128,7 @@ sub compose {
          $body =~ s#([^\n\r]{1,80})( |&nbsp;)#$1$2\n#ig;
 
          $body .= "\n";
-      }
+   }
    } elsif ($composetype eq 'sendto') {
       # *********************************************************
       # user is composing a new mail with a recipient already set
@@ -1138,7 +1138,7 @@ sub compose {
       if (defined $prefs{autocc} && $prefs{autocc} ne '') {
          $cc .= ', ' if $cc ne '';
          $cc .= (iconv($prefs{charset}, $composecharset, $prefs{autocc}))[0];
-      }
+   }
 
       $replyto = (iconv($prefs{charset}, $composecharset, $prefs{replyto}))[0] if defined $prefs{replyto};
 
@@ -1146,7 +1146,7 @@ sub compose {
          $body .= $msgformat eq 'text'
                   ? "\n\n"     . str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . "\n"
                   : "<br><br>" . str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . "<br>";
-      }
+   }
 
       # remove tail blank line and space
       $body =~ s#\s+$#\n#s;
@@ -1160,7 +1160,7 @@ sub compose {
          $body =~ s#([^\n\r]{1,80})( |&nbsp;)#$1$2\n#ig;
 
          $body .= "\n";
-      }
+   }
    }
 
    # prepare the dynamic template vars below this point
@@ -1176,7 +1176,7 @@ sub compose {
          # or else switch to en_US.UTF-8 and hope for the best
          $prefs{locale} = 'en_US.UTF-8';
          $prefs{charset} = $composecharset;
-      }
+   }
    }
 
    $po = loadlang($prefs{locale});
@@ -1199,7 +1199,7 @@ sub compose {
 
             delete $allsets{$convtocharset};
          }
-      }
+   }
    }
 
    push(@convtolist, sort keys %allsets);
@@ -1336,7 +1336,7 @@ sub compose {
                       attachments_limit       => $config{attlimit},
                       attspaceavailable_kb    => $config{attlimit} - int($attfiles_totalsize/1024),
                       enable_webdisk          => $config{enable_webdisk},
-                      enable_urlattach        => $config{enable_urlattach} && ow::tool::findbin('wget') ? 1 : 0,
+                      enable_urlattach        => $config{enable_urlattach} && ow::tool::has_module("LWP/UserAgent.pm") ? 1 : 0,
                       enable_backupsent       => $config{enable_backupsent},
                       backupsent              => $backupsent ? 1 : 0,
                       editrows                => $prefs{editrows} || 20,
@@ -1457,14 +1457,14 @@ sub decode_message_body {
          shift @{$message->{attachment}};
       } else {
          $body = '';
-      }
+   }
    } else {
       $body = $message->{body} || '';
 
       # handle mail programs that send the body encoded
       if ($message->{'content-type'} =~ m#^text#i) {
          $body = ow::mime::decode_content($body, $message->{'content-transfer-encoding'});
-      }
+   }
 
       $body = ow::enriched::enriched2html($body) if $message->{'content-type'} =~ m#^text/enriched#i;
       $bodyformat = 'html' if $message->{'content-type'} =~ m#^text/(?:html|enriched)#i;
@@ -1503,33 +1503,33 @@ sub add_attachment {
    my $attachment_contenttype = '';
 
    if ($config{enable_urlattach} && $urlselection =~ m#^(https?|ftp)://#) {
-      # ATTACHMENT IS A URL.
-      # Retrieve the file to attach using wget
-      # Get filename and content-type
-      # TODO: We should replace this with a perl module that does
-      # the same thing, such as LWP::Simple or LWP::UserAgent
-      my $wgetbin = ow::tool::findbin('wget');
+       # ATTACHMENT IS A URL. Retrieve it with LWP::UserAgent
+       my $ua = LWP::UserAgent->new(env_proxy => 1);
+       my $response = $ua->get($urlselection);
 
-      if ($wgetbin) {
-         $attachment_filename = ow::tool::unescapeURL($urlselection); # unescape url
+       if ($response->is_success) {
+          $attachment_contenttype = $response->header('Content-Type') || 'application/octet-stream';
 
-         my $returncode    = -1;
-         my $error_message = '';
-         ($returncode, $error_message, $attachment_contenttype, $attachment)
-           = ow::wget::get_handle($wgetbin, $attachment_filename);
+          if (my $disp = $response->header('Content-Disposition')) {
+             ($attachment_filename) = $disp =~ /filename="?([^";]+)/i;
+          }
+          $attachment_filename ||= ow::tool::unescapeURL($urlselection);
+          $attachment_filename =~ s#?.*$##;
+          $attachment_filename =~ s#/$##;
+          $attachment_filename =~ s#^.*/##;
+          my $ext = ow::tool::contenttype2ext($attachment_contenttype);
+          $attachment_filename .= ".$ext" if $attachment_filename !~ m/.$ext$/ && $ext ne 'bin';
 
-         if ($returncode == 0) {
-            my $ext = ow::tool::contenttype2ext($attachment_contenttype);
-            $attachment_filename =~ s#\?.*$##; # remove cgi query parameters in url
-            $attachment_filename =~ s#/$##;    # remove trailing url slashes
-            $attachment_filename =~ s#^.*/##;  # remove url path to isolate filename
-            $attachment_filename .= ".$ext" if $attachment_filename !~ m/\.$ext$/ && $ext ne 'bin';
-         } else {
-            undef $attachment; # silent if wget err
-         }
-      } else {
-         undef $attachment; # silent if no wget available
-      }
+          my ($tmpfh, $tmpfile) = ow::tool::mktmpfile('urlattach');
+          binmode $tmpfh;
+          print $tmpfh $response->decoded_content;
+          seek($tmpfh, 0, 0);
+          unlink $tmpfile;
+          $attachment = $tmpfh;
+       } else {
+          undef $attachment; # silent if download fails
+       }
+   }
    } elsif ($webdiskselection && $config{enable_webdisk}) {
       # ATTACHMENT IS A WEBDISK FILE
       # the webdiskselection value copied from webdisk is in fscharset and protected with escapeURL,
@@ -1568,7 +1568,7 @@ sub add_attachment {
          $attachment_filename = ow::tool::zh_dospath2fname($attachment_filename);
       } else {
          $attachment_filename =~ s#^.*\\##;
-      }
+   }
       $attachment_filename =~ s#^.*/##; # trim unix path
       $attachment_filename =~ s#^.*:##; # trim mac path and dos drive
 
@@ -1577,7 +1577,7 @@ sub add_attachment {
          $attachment_contenttype = CGI::uploadInfo($attachment)->{'Content-Type'} || 'application/octet-stream';
       } else {
          $attachment_contenttype = 'application/octet-stream';
-      }
+   }
 
       $attachment = CGI::upload('attachment'); # get the CGI.pm filehandle in a strict safe way
    }
@@ -1618,7 +1618,7 @@ sub add_attachment {
          $readbuffer = ow::mime::encode_base64($readbuffer);
          $attachment_size += length($readbuffer);
          print ATTFILE $readbuffer;
-      }
+   }
 
       close(ATTFILE) or
          openwebmailerror(gettext('Cannot close file:') . " $attachment_base64tempfile ($!)");
@@ -1646,7 +1646,7 @@ sub delete_attachments {
    foreach my $file (@sessionfiles) {
       if ($file =~ m/^(\Q$thissession-$attachments_uid-\Eatt\d+)$/) {
          push(@deletequeue, ow::tool::untaint("$config{ow_sessionsdir}/$file"))
-      }
+   }
    }
 
    # return the number of deleted files
@@ -1684,7 +1684,7 @@ sub store_attachments {
             close ATTFILE or
               openwebmailerror(gettext('Cannot close file:') . " $attachment_tempfile ($!)");
          }
-      }
+   }
    }
 }
 
@@ -1737,7 +1737,7 @@ sub get_attachments {
          $att{size} = (-s "$config{ow_sessionsdir}/$file");
 
          $totalsize += $att{size};
-      }
+   }
    }
 
    return wantarray ? ($totalsize, \@attachmentfiles) : $totalsize;
@@ -1780,7 +1780,7 @@ sub reparagraph {
               || $line =~ m#^\s*\d\d?[\.:]#
               || $line =~ m#^\s*[A-Za-z][\.:]#
               || $line =~ m#\d\d:\d\d:\d\d#
-              || $line =~ m#¡G#
+              || $line =~ m#Â¡G#
             ) {
             $text .= "$left\n";
             $left = $line;
@@ -1810,7 +1810,7 @@ sub reparagraph {
             }
             last if $furthersplit == 0;
          }
-      }
+   }
    }
    $text .= "$left\n" if $left ne '';
 
@@ -1955,13 +1955,13 @@ sub sendmessage {
          $do_save = 0;
          $saveerrstr = gettext('The save draft feature is not enabled.');
          $saveerr++;
-      }
+   }
 
       if ($do_save == 1 && $quotalimit > 0 && $quotausage >= $quotalimit) {
          $do_save = 0;
          $saveerrstr = gettext('Save draft aborted, the quota has been exceeded.');
          $saveerr++;
-      }
+   }
    } else {
       # save message to sent folder and send
       $savefolder = $folder;
@@ -1973,7 +1973,7 @@ sub sendmessage {
          $do_save = 0;
          $saveerrstr = gettext('Message save aborted, the quota has been exceeded.');
          $saveerr++;
-      }
+   }
    }
 
    # prepare to capture SMTP errors
@@ -2003,13 +2003,13 @@ sub sendmessage {
             next if ($addr eq '' || $addr =~ m/\s/);
             push (@recipients, $addr);
          }
-      }
+   }
 
       foreach my $email (@recipients) {
          # validate receiver email
          matchlist_fromtail('allowed_receiverdomain', $email) or
             openwebmailerror(gettext('You are not allowed to send messages to this email address:') . " $email");
-      }
+   }
 
       my $timeout = 120;
       $timeout = 30 if scalar @{$config{smtpserver}} > 1; # cycle through available smtp servers faster
@@ -2040,7 +2040,7 @@ sub sendmessage {
             writelog($connectmsg);
             writehistory($connectmsg);
          }
-      }
+   }
 
       unless ($smtp) {
          # we did not connect to any smtp servers successfully
@@ -2056,7 +2056,7 @@ sub sendmessage {
 
          writelog($m);
          writehistory($m);
-      }
+   }
 
       # SMTP SASL authentication (PLAIN only)
       if ($config{smtpauth} && !$senderr) {
@@ -2068,7 +2068,7 @@ sub sendmessage {
             writelog($m);
             writehistory($m);
          }
-      }
+   }
 
       $smtp->mail($from) or $senderr++ if !$senderr;
 
@@ -2087,7 +2087,7 @@ sub sendmessage {
                          . '. ' .
                          gettext('A copy of the message has been saved to your drafts folder.');
          };
-      }
+   }
 
       $smtp->data() or $senderr++ if !$senderr;
 
@@ -2096,7 +2096,7 @@ sub sendmessage {
       if ($senderr && (!$quotalimit || $quotausage < $quotalimit) && $config{enable_savedraft}) {
          $do_save    = 1;
          $savefolder = 'saved-drafts';
-      }
+   }
    }
 
    if ($do_save) {
@@ -2110,7 +2110,7 @@ sub sendmessage {
             $saveerr++;
             $do_save = 0;
          }
-      }
+   }
 
       if (!$saveerr && ow::filelock::lock($savefile, LOCK_EX)) {
          if (update_folderindex($savefile, $savedb) < 0) {
@@ -2198,7 +2198,7 @@ sub sendmessage {
          $saveerrstr = gettext('Cannot lock file:') . " $savefile";
          $saveerr++;
          $do_save = 0;
-      }
+   }
    }
 
    # nothing to do, return error msg immediately
@@ -2276,7 +2276,7 @@ sub sendmessage {
       } else {
          $s .= "X-Confirm-Reading-To: $from\n";
          $s .= "Disposition-Notification-To: $from\n";
-      }
+   }
    }
    $s .= "MIME-Version: 1.0\n";
    dump_str($s, $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr);
@@ -2297,7 +2297,7 @@ sub sendmessage {
       } else {
          $r_att->{referencecount} = 0;
          push(@mixed, $r_att);
-      }
+   }
    }
 
    if (scalar @mixed > 0) {
@@ -2415,7 +2415,7 @@ sub sendmessage {
                       $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr
                     );
          }
-      }
+   }
 
       dump_atts(
                  \@mixed, $boundary1, $composecharset,
@@ -2582,7 +2582,7 @@ sub sendmessage {
                       $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr
                     );
          }
-      }
+   }
    }
 
    # terminate this message
@@ -2635,7 +2635,7 @@ sub sendmessage {
             writelog("send message error - smtp error ...\n $smtperr");
             writehistory("send message error - smtp error");
          }
-      }
+   }
    } else {
       open(STDERR, ">&SAVEERR"); # redirect stderr back
       close(SAVEERR);
@@ -2713,7 +2713,7 @@ sub sendmessage {
          $FDB{LSTMTIME} = time();
 
          ow::dbm::closedb(\%FDB, $savedb) or writelog("cannot close db $savedb");
-      }
+   }
 
       ow::filelock::lock($savefile, LOCK_UN) or writelog("cannot unlock file $savefile");
    }
@@ -2735,7 +2735,7 @@ sub sendmessage {
          }
       } else {
          push(@checkfolders, $folder);
-      }
+   }
 
       # identify where the original message is
       foreach my $foldername (@checkfolders) {
@@ -2766,7 +2766,7 @@ sub sendmessage {
 
             last;
          }
-      }
+   }
    }
 
    if ($senderr) {
@@ -2796,7 +2796,7 @@ sub sendmessage {
             $quotausage = (ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2];
          }
          return(compose());
-      }
+   }
    }
 }
 
@@ -2882,13 +2882,13 @@ sub dump_atts {
          $smtp->datasend($s)    or ${$r_senderr}++ if ($do_send && !${$r_senderr});
          print $folderhandle $s or ${$r_saveerr}++ if ($do_save && !${$r_saveerr});
          last if $s =~ /^\s+$/;
-      }
+   }
 
       # print attbody block by block
       while (read(ATTFILE, $s, 32768)) {
          $smtp->datasend($s)    or ${$r_senderr}++ if ($do_send && !${$r_senderr});
          print $folderhandle $s or ${$r_saveerr}++ if ($do_save && !${$r_saveerr});
-      }
+   }
 
       close(ATTFILE) or
          openwebmailerror(gettext('Cannot close file:') . " $attfile ($!)");
@@ -2931,7 +2931,7 @@ sub folding {
       } else {
          $folding .= "$line,\n   ";
          $line = $token;
-      }
+   }
    }
 
    $folding .= $line;
@@ -2965,7 +2965,7 @@ sub readsmtperr {
                $content .= "\n" . sprintf(ngettext('%d byte snipped ...', '%d bytes snipped ...', $snip), $snip) . "\n\n";
             }
          }
-      }
+   }
    }
 
    close(F) or
@@ -3006,7 +3006,7 @@ sub replyreceipt {
       while (<FOLDER>) {
          last if $_ eq "\n" && $header =~ m/\n$/;
          $header .= $_;
-      }
+   }
 
       close(FOLDER) or
          openwebmailerror(gettext('Cannot close file:') . ' ' . f2u($folderfile) . " ($!)");
@@ -3156,7 +3156,7 @@ sub replyreceipt {
          }
 
          $smtp->quit();
-      }
+   }
 
       $success = 1;
    }
