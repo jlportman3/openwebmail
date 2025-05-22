@@ -8,9 +8,8 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /usr/local/www/cgi-bin /usr/local/www/data
-COPY cgi-bin/openwebmail /usr/local/www/cgi-bin/openwebmail
-COPY data/openwebmail /usr/local/www/data/openwebmail
-RUN chown -R www-data:www-data /usr/local/www
+COPY --chown=www-data:www-data cgi-bin/openwebmail /usr/local/www/cgi-bin/openwebmail
+COPY --chown=www-data:www-data data/openwebmail /usr/local/www/data/openwebmail
 
 RUN a2enmod cgid
 RUN echo 'ScriptAlias /cgi-bin/ /usr/local/www/cgi-bin/' > /etc/apache2/conf-available/openwebmail.conf && \
