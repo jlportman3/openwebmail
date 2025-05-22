@@ -86,7 +86,7 @@ docker run -p 8080:80 openwebmail
 ```
 
 The application will then be available at
-`http://localhost:8080/openwebmail`.
+`http://localhost:8080/`.
 
 ### Docker Compose
 
@@ -99,7 +99,7 @@ Build and start the service with:
 docker-compose up --build
 ```
 
-The web interface will be available at `http://localhost:8080/openwebmail`.
+The web interface will be available at `http://localhost:8080/`.
 
 ## Links
 
