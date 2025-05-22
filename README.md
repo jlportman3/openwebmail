@@ -92,6 +92,7 @@ The application will then be available at
 
 An example environment file is provided to make configuration easier. Copy
 `.env.example` to `.env` and adjust the values for your IMAP and SMTP server.
+You can also set `AUTH_MODULE` to select the authentication backend.
 
 Build and start the service with:
 

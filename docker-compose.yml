@@ -14,6 +14,7 @@ services:
       - SMTP_PORT=${SMTP_PORT}
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - AUTH_MODULE=${AUTH_MODULE}
     deploy:
       resources:
         limits:
