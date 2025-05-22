@@ -228,6 +228,7 @@ sub loginmenu {
   # server type and host defaults from cookies
   my $server_type = param('server_type') || cookie('ow-server_type') || 'IMAP';
   my $server_host = param('server_host') || cookie('ow-server_host') || '';
+  my $auth_module = param('auth_module') || cookie('ow-auth_module') || $config{auth_module};
 
    # undef env to prevent httpprint() doing compression on login page
    delete $ENV{HTTP_ACCEPT_ENCODING} if (exists $ENV{HTTP_ACCEPT_ENCODING} && defined $ENV{HTTP_ACCEPT_ENCODING});
@@ -262,6 +263,7 @@ sub loginmenu {
                       use_httpcompression    => $use_httpcompression,
                       enable_autologin       => $enable_autologin,
                       use_autologin          => $use_autologin,
+                      auth_module            => $auth_module,
                       server_type            => $server_type,
                       server_host            => $server_host,
                       server_type_imap       => ($server_type eq 'IMAP' ? 1 : 0),
@@ -295,6 +297,7 @@ sub login {
    openwebmailerror(gettext('The following script must be setuid root to read the mail spools:') . " $0")
      if ($> != 0 && !$config{use_homedirspools} && ($config{mailspooldir} eq '/var/mail' || $config{mailspooldir} eq '/var/spool/mail'));
 
+   $config{auth_module} = param('auth_module') || cookie('ow-auth_module') || $config{auth_module};
    ow::auth::load($config{auth_module});
 
    # create domain logfile
@@ -664,6 +667,12 @@ sub login {
                            -path    => '/',
                            -expires => '+1M',
                         ));
+  push(@cookies, cookie(
+                           -name    => 'ow-auth_module',
+                           -value   => param('auth_module') || $config{auth_module},
+                           -path    => '/',
+                           -expires => '+1M',
+                        ));
   push(@header, -cookie=>\@cookies);
 
    # in case the javascript refresh does not work
@@ -772,6 +781,7 @@ sub autologin {
       read_owconf(\%config, \%config_raw, "$config{ow_sitesconfdir}/$logindomain");
    }
 
+   $config{auth_module} = param('auth_module') || cookie('ow-auth_module') || $config{auth_module};
    ow::auth::load($config{auth_module});
 
    ($domain, $user, $userrealname, $uuid, $ugid, $homedir) = get_domain_user_userinfo($logindomain, $loginuser);
