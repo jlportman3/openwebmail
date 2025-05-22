@@ -24,6 +24,7 @@ RUN echo 'ScriptAlias /cgi-bin/ /usr/local/www/cgi-bin/' > /etc/apache2/conf-ava
     echo '<Directory "/usr/local/www/cgi-bin">' >> /etc/apache2/conf-available/openwebmail.conf && \
     echo '    Options +ExecCGI' >> /etc/apache2/conf-available/openwebmail.conf && \
     echo '    AddHandler cgi-script .pl' >> /etc/apache2/conf-available/openwebmail.conf && \
+    echo '    Require all granted' >> /etc/apache2/conf-available/openwebmail.conf && \
     echo '</Directory>' >> /etc/apache2/conf-available/openwebmail.conf && \
     a2enconf openwebmail
 
