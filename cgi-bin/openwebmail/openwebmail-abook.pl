@@ -4165,7 +4165,10 @@ sub HT_BINARYDATA {
 sub HT_ADR {
    my ($FIELD, $CHARSET) = HT_GENERIC(@_);
 
-   $FIELD->{enable_map} = cookie('ow-browserjavascript') eq 'dom' ? 1 : 0;
+   # mapping support requires JavaScript.  Accept 'dom' and 'ie' values set
+   # by the login page so all modern browsers are enabled instead of only
+   # Firefox.
+   $FIELD->{enable_map} = cookie('ow-browserjavascript') =~ /^(?:dom|ie)$/ ? 1 : 0;
 
    $FIELD->{mapquery} = join(',',
                               map { $FIELD->{$_} }
