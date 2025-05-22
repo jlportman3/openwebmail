@@ -1,6 +1,62 @@
-# openwebmail
-The OpenWebMail Project
+# OpenWebMail
 
-http://openwebmail.acatysmoof.com/
+OpenWebMail is a webmail system written in Perl. It is derived from
+Neomail 1.14 and is designed to handle very large mail folders while
+using memory efficiently. The project includes many features to help
+users migrate from traditional desktop clients such as Microsoft
+Outlook.
 
-https://openwebmail.org/
+## Prerequisites
+
+Before installing OpenWebMail you should have:
+
+* An Apache (or compatible) web server with CGI enabled
+* Perl 5.005 or later
+* Required Perl modules:
+  * CGI.pm
+  * MIME-Base64
+  * libnet
+  * Digest and Digest::MD5
+  * Text-Iconv (libiconv if your system lacks iconv)
+* Optional modules for additional features: CGI::SpeedyCGI,
+  Compress::Zlib, ispell, Quota, Authen::PAM and Net::SSLeay/OpenSSL
+
+Detailed information about the required packages is available in
+`data/openwebmail/doc/readme.txt`.
+
+## Basic Installation
+
+1. Extract the OpenWebMail distribution under your web server root so
+   that the CGI scripts are available (for example under
+   `cgi-bin/openwebmail`) and the static HTML files are placed in your
+   document directory.
+2. Edit `cgi-bin/openwebmail/etc/openwebmail.conf` and adjust settings
+   such as `mailspooldir`, `ow_htmldir` and `ow_cgidir` for your
+   environment. Depending on your authentication method you may also
+   need to edit `auth_unix.conf`.
+3. Run the initialization script:
+
+   ```sh
+   cgi-bin/openwebmail/openwebmail-tool.pl --init
+   ```
+
+This step builds the internal mapping tables required for the web
+interface.
+
+For a complete description of installation options, configuration files
+and optional modules please read
+[`data/openwebmail/doc/readme.txt`](data/openwebmail/doc/readme.txt).
+
+## Tests
+
+A basic test suite exists in the `t` directory. You can run it with:
+
+```sh
+prove -l
+```
+
+## Links
+
+<http://openwebmail.acatysmoof.com/>
+
+<https://openwebmail.org/>
