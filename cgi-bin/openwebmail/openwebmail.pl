@@ -216,14 +216,18 @@ sub loginmenu {
    }
 
    # autologin options
-   my $enable_autologin = 1;
-   my $use_autologin    = 0;
-   if (matchlist_fromhead('allowed_autologinip', ow::tool::clientip()) ) {
+  my $enable_autologin = 1;
+  my $use_autologin    = 0;
+  if (matchlist_fromhead('allowed_autologinip', ow::tool::clientip()) ) {
       $use_autologin = cookie("ow-autologin") || 0;
-   } else {
+  } else {
       $enable_autologin = 0;
       $use_autologin    = 0;
-   }
+  }
+
+  # server type and host defaults from cookies
+  my $server_type = param('server_type') || cookie('ow-server_type') || 'IMAP';
+  my $server_host = param('server_host') || cookie('ow-server_host') || '';
 
    # undef env to prevent httpprint() doing compression on login page
    delete $ENV{HTTP_ACCEPT_ENCODING} if (exists $ENV{HTTP_ACCEPT_ENCODING} && defined $ENV{HTTP_ACCEPT_ENCODING});
@@ -258,6 +262,10 @@ sub loginmenu {
                       use_httpcompression    => $use_httpcompression,
                       enable_autologin       => $enable_autologin,
                       use_autologin          => $use_autologin,
+                      server_type            => $server_type,
+                      server_host            => $server_host,
+                      server_type_imap       => ($server_type eq 'IMAP' ? 1 : 0),
+                      server_type_pop        => ($server_type eq 'POP' ? 1 : 0),
                       login_virtual_keyboard => $config{login_virtual_keyboard},
                       keyboard_language      => (ow::lang::localeinfo($prefs{locale}))[0],
 
@@ -637,13 +645,26 @@ sub login {
                         ));
 
    # cookie for httpcompress switch, expires 1 month later
-   push(@cookies, cookie(
+  push(@cookies, cookie(
                            -name    => 'ow-httpcompress',
                            -value   => param('httpcompress') || 0,
                            -path    => '/',
                            -expires => '+1M',
                         ));
-   push(@header, -cookie=>\@cookies);
+  # cookie for server connection info, expires 1 month later
+  push(@cookies, cookie(
+                           -name    => 'ow-server_type',
+                           -value   => param('server_type') || '',
+                           -path    => '/',
+                           -expires => '+1M',
+                        ));
+  push(@cookies, cookie(
+                           -name    => 'ow-server_host',
+                           -value   => param('server_host') || '',
+                           -path    => '/',
+                           -expires => '+1M',
+                        ));
+  push(@header, -cookie=>\@cookies);
 
    # in case the javascript refresh does not work
    push(@header, -refresh=>"2;URL=$refreshurl");

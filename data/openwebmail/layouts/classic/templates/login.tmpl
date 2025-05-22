@@ -54,6 +54,20 @@
         </tmpl_if>
 
         <tr>
+          <td align="right" nowrap>ServerType:</td>
+          <td>
+            <select name="server_type">
+              <option value="IMAP" <tmpl_if server_type_imap>selected</tmpl_if>>IMAP</option>
+              <option value="POP" <tmpl_if server_type_pop>selected</tmpl_if>>POP</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td align="right" nowrap>Servername:</td>
+          <td><input type="text" name="server_host" size="<tmpl_var loginfieldwidth escape="html">" value="<tmpl_var server_host escape="html">"></td>
+        </tr>
+
+        <tr>
           <td colspan="2">
             <table cellpadding="2" cellspacing="1" border="0" align="center">
             <tr>
