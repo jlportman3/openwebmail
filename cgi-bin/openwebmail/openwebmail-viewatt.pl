@@ -30,6 +30,12 @@
 use strict;
 use warnings FATAL => 'all';
 
+use FindBin;
+BEGIN {
+    my ($bin) = $FindBin::RealBin =~ /(.*)/;
+    unshift @INC, $bin;
+}
+
 use vars qw($SCRIPT_DIR);
 
 require "modules/init.pl";
