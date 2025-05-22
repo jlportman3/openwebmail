@@ -55,6 +55,24 @@ A basic test suite exists in the `t` directory. You can run it with:
 prove -l
 ```
 
+## Docker Setup
+
+A `Dockerfile` is provided for running OpenWebMail on a modern Ubuntu
+system. Build the image with:
+
+```sh
+docker build -t openwebmail .
+```
+
+Run the container and expose port 80:
+
+```sh
+docker run -p 8080:80 openwebmail
+```
+
+The application will then be available at
+`http://localhost:8080/openwebmail`.
+
 ## Links
 
 <http://openwebmail.acatysmoof.com/>

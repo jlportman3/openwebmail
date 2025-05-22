@@ -1,0 +1,26 @@
+FROM ubuntu:22.04
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && \
+    apt-get install -y apache2 libapache2-mod-perl2 perl \
+        libcgi-pm-perl libmime-base64-perl libnet-perl \
+        libdigest-perl-perl libdigest-md5-perl libtext-iconv-perl \
+        ispell libauthen-pam-perl libnet-ssleay-perl && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /usr/local/www/cgi-bin /usr/local/www/data
+COPY cgi-bin/openwebmail /usr/local/www/cgi-bin/openwebmail
+COPY data/openwebmail /usr/local/www/data/openwebmail
+RUN chown -R www-data:www-data /usr/local/www
+
+RUN a2enmod cgid
+RUN echo 'ScriptAlias /cgi-bin/ /usr/local/www/cgi-bin/' > /etc/apache2/conf-available/openwebmail.conf && \
+    echo '<Directory "/usr/local/www/cgi-bin">' >> /etc/apache2/conf-available/openwebmail.conf && \
+    echo '    Options +ExecCGI' >> /etc/apache2/conf-available/openwebmail.conf && \
+    echo '    AddHandler cgi-script .pl' >> /etc/apache2/conf-available/openwebmail.conf && \
+    echo '</Directory>' >> /etc/apache2/conf-available/openwebmail.conf && \
+    a2enconf openwebmail
+
+RUN /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl --init --no
+
+EXPOSE 80
+CMD ["apachectl", "-D", "FOREGROUND"]
