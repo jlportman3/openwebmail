@@ -11,6 +11,12 @@ RUN mkdir -p /usr/local/www/cgi-bin /usr/local/www/data
 COPY --chown=www-data:www-data cgi-bin/openwebmail /usr/local/www/cgi-bin/openwebmail
 COPY --chown=www-data:www-data data/openwebmail /usr/local/www/data/openwebmail
 
+# Ensure dbm configuration matches the DB_File modules shipped with Ubuntu
+# Without this adjustment, `openwebmail-tool.pl --init` fails asking for a
+# change from `.db` to `.pag`.
+RUN sed -i 's/^dbm_ext.*/dbm_ext                 .pag/' \
+        /usr/local/www/cgi-bin/openwebmail/etc/defaults/dbm.conf
+
 RUN a2enmod cgid
 RUN echo 'ScriptAlias /cgi-bin/ /usr/local/www/cgi-bin/' > /etc/apache2/conf-available/openwebmail.conf && \
     echo '<Directory "/usr/local/www/cgi-bin">' >> /etc/apache2/conf-available/openwebmail.conf && \
