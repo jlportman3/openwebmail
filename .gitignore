@@ -1,0 +1,23 @@
+# Ignore database, log, and temporary files
+*.db
+*.log
+*.tmp
+
+# Backup and editor swap files
+*~
+*.bak
+*.swp
+*.swo
+
+# macOS Finder metadata
+.DS_Store
+
+# User generated runtime files
+cgi-bin/openwebmail/etc/sessions/
+cgi-bin/openwebmail/etc/users/
+# Additional user data directories
+cgi-bin/openwebmail/etc/*.db
+cgi-bin/openwebmail/etc/*.log
+
+data/openwebmail/tmp/
+data/openwebmail/uploads/
