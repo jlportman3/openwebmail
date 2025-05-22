@@ -4,7 +4,8 @@ RUN apt-get update && \
     apt-get install -y apache2 libapache2-mod-perl2 perl \
         libcgi-pm-perl libmime-base64-perl libnet-perl \
         libdigest-perl libdigest-md5-perl libtext-iconv-perl \
-        ispell libauthen-pam-perl libnet-ssleay-perl && \
+        ispell libauthen-pam-perl libnet-ssleay-perl \
+        build-essential && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /usr/local/www/cgi-bin /usr/local/www/data
