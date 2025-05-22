@@ -11,6 +11,7 @@ RUN apt-get update && \
 RUN mkdir -p /usr/local/www/cgi-bin /usr/local/www/data
 COPY --chown=www-data:www-data cgi-bin/openwebmail /usr/local/www/cgi-bin/openwebmail
 COPY --chown=www-data:www-data data/openwebmail /usr/local/www/data/openwebmail
+COPY data/openwebmail/redirect.html /var/www/html/index.html
 
 # Ensure dbm configuration matches the DB_File modules shipped with Ubuntu
 # Without this adjustment, `openwebmail-tool.pl --init` fails asking for a
