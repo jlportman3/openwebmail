@@ -22,7 +22,7 @@ Before installing OpenWebMail you should have:
   Compress::Zlib, ispell, Quota, Authen::PAM and Net::SSLeay/OpenSSL
 
 Detailed information about the required packages is available in
-`data/openwebmail/doc/readme.txt`.
+`docs/README.md`.
 
 ## Basic Installation
 
@@ -45,7 +45,7 @@ interface.
 
 For a complete description of installation options, configuration files
 and optional modules please read
-[`data/openwebmail/doc/readme.txt`](data/openwebmail/doc/readme.txt).
+[`docs/README.md`](docs/README.md).
 
 ## Tests
 

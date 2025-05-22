@@ -1,4 +1,4 @@
-OpenWebMail ReadMe Document
+# OpenWebMail ReadMe Document
 $Id: readme.txt 349 2009-04-27 07:26:53Z ateslik $
 
 OpenWebMail is a webmail system based on
