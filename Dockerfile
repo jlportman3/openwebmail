@@ -19,6 +19,12 @@ COPY data/openwebmail/redirect.html /var/www/html/index.html
 RUN sed -i 's/^dbm_ext.*/dbm_ext                 .pag/' \
         /usr/local/www/cgi-bin/openwebmail/etc/defaults/dbm.conf
 
+# Pre-create the logfile with the correct permissions so the web
+# server can write to it without errors.
+RUN touch /var/log/openwebmail.log \
+    && chown root:mail /var/log/openwebmail.log \
+    && chmod 660 /var/log/openwebmail.log
+
 RUN a2enmod cgid
 RUN echo 'ScriptAlias /cgi-bin/ /usr/local/www/cgi-bin/' > /etc/apache2/conf-available/openwebmail.conf && \
     echo '<Directory "/usr/local/www/cgi-bin">' >> /etc/apache2/conf-available/openwebmail.conf && \
