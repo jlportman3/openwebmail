@@ -49,7 +49,9 @@ and optional modules please read
 
 ## Tests
 
-A basic test suite exists in the `t` directory. You can run it with:
+A basic test suite exists in the `t` directory, including a `compile.t`
+script that ensures every module and utility script compiles.  Run the
+tests with:
 
 ```sh
 prove -l
