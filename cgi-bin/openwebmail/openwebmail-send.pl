@@ -188,7 +188,13 @@ sub compose {
    $attachments_uid =~ s#[<>@"'&;]##g;
 
    # get browser javascript support level (none,nn4,ie,dom)
-   my $enable_htmlcompose = cookie('ow-browserjavascript') eq 'dom' ? 1 : 0;
+   # allow HTML compose for any modern browser that supports JavaScript
+   # the login page sets the ow-browserjavascript cookie to 'dom' for
+   # standards compliant browsers and to 'ie' for older Internet Explorer.
+   # Previously only 'dom' (primarily Firefox) enabled the WYSIWYG editor.
+   # Expand support so 'ie' is also accepted which covers other modern
+   # browsers such as Chrome, Safari and Edge.
+   my $enable_htmlcompose = cookie('ow-browserjavascript') =~ /^(?:dom|ie)$/ ? 1 : 0;
 
    # force msgformat to text if html composing is not supported
    $msgformat = $newmsgformat = 'text' unless $enable_htmlcompose;
